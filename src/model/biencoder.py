@@ -7,11 +7,18 @@ from transformers import logging as t_logging
 t_logging.set_verbosity_error()
 
 class BiEncoderModule(nn.Module):
-    def __init__(self, pretrained_name):
+    def __init__(self, config):
         super(BiEncoderModule, self).__init__()
-        # microsoft/deberta-v3-small
+        pretrained_name = config['model']['pretrained_name']
+        freeze_layers = [int(l) for l in config['model']['freeze_layers'].split()]
         self.context_enc = AutoModel.from_pretrained(pretrained_name)
         self.candidate_enc = AutoModel.from_pretrained(pretrained_name)
+        
+        for layer in freeze_layers:
+            for param in self.context_enc.encoder.layer[layer].parameters():
+                param.require_grad = False
+            for param in self.candidate_enc.encoder.layer[layer].parameters():
+                param.require_grad = False
     
     def forward(self, contexts, context_mask , candidates, candidate_mask):
         context_emb = self.context_enc(input_ids=contexts, 
@@ -25,7 +32,9 @@ class Reranker(nn.Module):
     def __init__(self, config):
         super(Reranker, self).__init__()
         self.config = config
-        self.biencoder = BiEncoderModule(self.config['model']['pretrained_name'])
+        self.biencoder = BiEncoderModule(self.config)
+        if self.config['model']['freeze_layers'] != 'None':
+            self.frozen = True
     
     def _make_label_vec(self, ctx_bs, cand_bs, device):
         cand_group = int(cand_bs / ctx_bs)
@@ -78,9 +87,11 @@ if __name__ == '__main__':
     
     batch = Batch(context_ids, context_attention_mask, candidate_ids, candidate_attention_mask)
     model = Reranker(config)
-    loss = model(batch, return_type='loss')
-    scores = model(batch, return_type='scores')
+    # loss = model(batch, return_type='loss')
+    # scores = model(batch, return_type='scores')
     
-    print(loss)
-    print(scores.size())
+    # print(loss)
+    # print(scores.size())
+    
+    print(model.biencoder.context_enc)
     

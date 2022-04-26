@@ -78,7 +78,7 @@ class Trainer:
                 'weight_decay': 0.0
             }   
         ]
-        optimizer = AdamW(optimized_params, lr=0.001)
+        optimizer = AdamW(optimized_params, lr=float(self.config['training']['lr']))
         lr_scheduler = warmup_scheduler(optimizer, 
                                         int(self.config['training']['n_warmup_steps']))
         # self.optimizer = optimizer
