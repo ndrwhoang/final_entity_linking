@@ -90,7 +90,7 @@ class Trainer:
         for epoch in range(int(self.config['training']['n_epochs'])):
             pbar = tqdm(self.train_loader, disable=not self.accelerator.is_local_main_process)
             self.model.train()
-            self.model.zero_grad(set_to_zero=None)
+            self.model.zero_grad(set_to_none=True)
             
             for i, batch in enumerate(pbar):
                 batch_loss = self._training_step(batch)
@@ -114,8 +114,7 @@ class Trainer:
                 torch.save(unwrapped_model.state_dict(), ckpt_path)
                 # torch.save(self.model.state_dict(), ckpt_path)
                 logger.info(f'New checkpoint saved at {ckpt_path}')
-                
-            if (val_loss >= best_loss or epoch > 5) and self.model.frozen == True:
+            elif epoch > 5 and self.model.frozen:
                 logger.info(f'Unfreeze encoder at epoch {epoch}')
                 self.model.frozen = False
                 for g in self.optimizer.param_groups:
