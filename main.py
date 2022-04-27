@@ -38,3 +38,4 @@ def run_train():
 
 if __name__ == '__main__':
     print('hello world')
+    run_train()
