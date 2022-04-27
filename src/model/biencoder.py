@@ -10,15 +10,22 @@ class BiEncoderModule(nn.Module):
     def __init__(self, config):
         super(BiEncoderModule, self).__init__()
         pretrained_name = config['model']['pretrained_name']
-        freeze_layers = [int(l) for l in config['model']['freeze_layers'].split(',')]
         self.context_enc = AutoModel.from_pretrained(pretrained_name)
         self.candidate_enc = AutoModel.from_pretrained(pretrained_name)
         
+        freeze_layers = [int(l) for l in config['model']['freeze_layers'].split(',')]
+        self._freeze_layers(freeze_layers)
+    
+    def _freeze_layers(self, freeze_layers):
         for layer in freeze_layers:
             for param in self.context_enc.encoder.layer[layer].parameters():
                 param.require_grad = False
             for param in self.candidate_enc.encoder.layer[layer].parameters():
                 param.require_grad = False
+        for param in self.context_enc.embeddings.parameters():
+            param.require_grad = False
+        for param in self.candidate_enc.embeddings.parameters():
+            param.require_grad = False
     
     def forward(self, contexts, context_mask , candidates, candidate_mask):
         context_emb = self.context_enc(input_ids=contexts, 
