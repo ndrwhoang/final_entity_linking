@@ -1,5 +1,7 @@
 from tqdm.auto import tqdm
 import json
+import random
+random.seed(123)
 import logging
 from typing import NamedTuple, List
 from itertools import chain
@@ -71,6 +73,7 @@ class ELDataset(Dataset):
             candidate_ids = candidates[mention_id]
             if len(candidate_ids) == 0: return None, None
             candidate_ids = [cand for cand in candidate_ids if cand != gold_document_id]
+            random.shuffle(candidate_ids)
             candidate_ids.insert(0, gold_document_id)
             candidate_ids = candidate_ids[:int(self.config['data']['n_hard_negs'])+1]
             padding = candidate_ids[-1]
