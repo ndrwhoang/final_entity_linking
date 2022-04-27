@@ -19,11 +19,13 @@ def run_train():
     config = configparser.ConfigParser()
     config.read(os.path.join('configs', 'config.ini'))
     
-    data_path = 'data\\raw\zeshel\mentions\\val.json'
+    val_path = 'data\\raw\zeshel\mentions\\val.json'
+    train_path = 'data\\raw\zeshel\mentions\\train.json'
     pretrained_model = config['model']['pretrained_name']
     
     accelerator = Accelerator(mixed_precision='fp16', cpu=False)
-    dataset = ELDataset(config, data_path)
+    train_dataset = ELDataset(config, train_path)
+    val_dataset = ELDataset(config, val_path)
     model = Reranker(config)
     
     logger.setLevel(logging.INFO if accelerator.is_local_main_process else logging.ERROR) 
@@ -32,7 +34,7 @@ def run_train():
     logger.info(f' Pretrained Encoder: {pretrained_model}')
     logger.info(f" Freezing layers: {config['model']['freeze_layers']}")
     
-    trainer = Trainer(config, model, accelerator, dataset)
+    trainer = Trainer(config, model, accelerator, train_dataset, val_dataset)
     trainer.run_train()
     
 
