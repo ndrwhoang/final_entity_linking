@@ -165,9 +165,9 @@ if __name__ == '__main__':
     data_path = 'data\\raw\zeshel\mentions\\val.json'
     pretrained_model = 'microsoft/deberta-v3-xsmall'
     
-    accelerator = Accelerator(mixed_precision='fp16', cpu=False)
+    accelerator = Accelerator(mixed_precision='no', cpu=False)
     dataset = ELDataset(config, data_path)
     model = Reranker(config)
     
     trainer = Trainer(config, model, accelerator, dataset)
-    # trainer.run_train()
+    trainer.run_train()

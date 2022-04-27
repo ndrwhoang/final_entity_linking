@@ -69,10 +69,13 @@ class ELDataset(Dataset):
             
             # Gathering candidates, filter outduplicate gold, adding gold document at head
             candidate_ids = candidates[mention_id]
-            if not candidate_ids: return None
+            if len(candidate_ids) == 0: return None, None
             candidate_ids = [cand for cand in candidate_ids if cand != gold_document_id]
             candidate_ids.insert(0, gold_document_id)
             candidate_ids = candidate_ids[:int(self.config['data']['n_hard_negs'])+1]
+            padding = candidate_ids[-1]
+            while len(candidate_ids) < 1 + int(self.config['data']['n_hard_negs']):
+                candidate_ids.append(padding)
             
             # Building list of hard negatives
             candidate_strs = []
@@ -88,14 +91,17 @@ class ELDataset(Dataset):
         failed_mention_ids = []
         
         for mention in tqdm(mentions):
-            try:
-                input_str, cands = process_sample(mention, documents, candidates)
-            except:
-                n_fails += 1
-                failed_mention_ids.append(mention['mention_id'])
-                continue
-            input_strs.append(input_str)
-            candidate_strs.append(cands)
+            input_str, cands = process_sample(mention, documents, candidates)
+            # try:
+            #     input_str, cands = process_sample(mention, documents, candidates)
+            # except:
+            #     n_fails += 1
+            #     failed_mention_ids.append(mention['mention_id'])
+            #     input_str, cands = None, None
+            #     continue
+            if cands:
+                input_strs.append(input_str)
+                candidate_strs.append(cands)
             
         logger.info(f' Failed to parse {n_fails} samples: {failed_mention_ids}')
             
@@ -141,7 +147,7 @@ if __name__ == '__main__':
     
     # tokenizer = AutoTokenizer.from_pretrained('microsoft/deberta-v3-small')
     tokenizer = 'microsoft/deberta-v3-xsmall'
-    dataset = ELDataset(config, 'data\\raw\zeshel\mentions\\val.json', tokenizer)
+    dataset = ELDataset(config, 'data\\raw\zeshel\mentions\\val.json')
     dataloader = DataLoader(dataset, batch_size=4, shuffle=False, collate_fn=dataset.collate_fn)
     
     for i, batch in enumerate(dataloader):

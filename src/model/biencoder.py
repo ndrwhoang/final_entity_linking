@@ -10,7 +10,7 @@ class BiEncoderModule(nn.Module):
     def __init__(self, config):
         super(BiEncoderModule, self).__init__()
         pretrained_name = config['model']['pretrained_name']
-        freeze_layers = [int(l) for l in config['model']['freeze_layers'].split()]
+        freeze_layers = [int(l) for l in config['model']['freeze_layers'].split(',')]
         self.context_enc = AutoModel.from_pretrained(pretrained_name)
         self.candidate_enc = AutoModel.from_pretrained(pretrained_name)
         
@@ -63,7 +63,15 @@ class Reranker(nn.Module):
             labels = self._make_label_vec(context_emb.size(0), 
                                         candidate_emb.size(0),
                                         device)
-            return self.loss_fn(scores, labels)
+            try:
+                loss = self.loss_fn(scores, labels)
+            except ValueError:
+                print(batch.context_ids.size())
+                print(batch.candidate_ids.size())
+                print(scores.size())
+                print(labels.size())
+                print(labels)
+            return loss
         elif return_type == 'scores':
             return scores
         
