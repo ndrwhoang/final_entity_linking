@@ -25,8 +25,9 @@ class Batch(NamedTuple):
     candidate_attention_mask: torch.Tensor
 
 class ELDataset(Dataset):
-    def __init__(self, config, data_path):
+    def __init__(self, config, data_path, mode='train'):
         self.config = config
+        self.mode = mode
         self.tokenizer = AutoTokenizer.from_pretrained(self.config['model']['pretrained_name'])
         documents = read_knowledge(self.config['data_path']['document_path'])
         mentions, candidates = self._read_data(data_path)
@@ -75,10 +76,16 @@ class ELDataset(Dataset):
             candidate_ids = [cand for cand in candidate_ids if cand != gold_document_id]
             random.shuffle(candidate_ids)
             candidate_ids.insert(0, gold_document_id)
-            candidate_ids = candidate_ids[:int(self.config['data']['n_hard_negs'])+1]
-            padding = candidate_ids[-1]
-            while len(candidate_ids) < 1 + int(self.config['data']['n_hard_negs']):
-                candidate_ids.append(padding)
+            if self.mode == 'train':
+                candidate_ids = candidate_ids[:int(self.config['data']['n_hard_negs'])+1]
+                padding = candidate_ids[-1]
+                while len(candidate_ids) < 1 + int(self.config['data']['n_hard_negs']):
+                    candidate_ids.append(padding)
+            elif self.mode == 'test':
+                candidate_ids = candidate_ids[:65]
+            else:
+                logger.error(f" mode has to be 'train' or 'test', currently {self.mode}")
+                raise ValueError
             
             # Building list of hard negatives
             candidate_strs = []

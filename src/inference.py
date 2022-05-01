@@ -89,7 +89,7 @@ if __name__ == '__main__':
     data_path = 'data\\raw\zeshel\mentions\\val.json'
     
     accelerator = Accelerator(mixed_precision='no', cpu=True)
-    dataset = ELDataset(config, data_path)
+    dataset = ELDataset(config, data_path, 'test')
     model = Reranker(config)
     
     inference = Inference(config, accelerator, model, dataset)
