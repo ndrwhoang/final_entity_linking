@@ -33,13 +33,14 @@ class Inference:
         if model_path:
             path = os.path.join(*model_path.split('\\'))
             self.model.load_state_dict(torch.load(path))
+            logger.info(f' Loaded checkpoint from {model_path}')
         
         self.model.eval()
         self.model = self.accelerator.prepare(self.model)
         
     def _init_dataloader(self, dataset):
         loader = DataLoader(dataset,
-                            batch_size=int(self.config['training']['test_bsz']),
+                            batch_size=int(self.config['training']['bsz_test']),
                             collate_fn=dataset.collate_fn,
                             shuffle=False,
                             drop_last=False
@@ -59,7 +60,7 @@ class Inference:
         preds, labels = [], []
         n_samples = self.dataset.__len__()
         
-        for i, batch in enumerate(pbar):
+        for i, batch in enumerate(pbar):            
             scores = self.model(batch, 'scores')
             pred = torch.argmax(scores, dim=1)
             label = self._make_label_vec(batch.context_ids.size(0), 
@@ -69,7 +70,7 @@ class Inference:
             preds.extend(pred.cpu().numpy().tolist())
             labels.extend(label.cpu().numpy().tolist())
             
-        n_rights = [1 for pred, label in zip(preds, labels) if pred == label]
+        n_rights = sum([1 for pred, label in zip(preds, labels) if pred == label])
         
         logger.info(f' Test set accuracy {n_rights/n_samples}')
 
@@ -85,9 +86,9 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read(os.path.join('configs', 'config.ini'))
     
-    data_path = 'data\\raw\zeshel\mentions\\test.json'
+    data_path = 'data\\raw\zeshel\mentions\\val.json'
     
-    accelerator = Accelerator(mixed_precision=False)
+    accelerator = Accelerator(mixed_precision='no', cpu=True)
     dataset = ELDataset(config, data_path)
     model = Reranker(config)
     
