@@ -2,7 +2,7 @@
 This is a re-implementation of [this model](https://arxiv.org/pdf/1911.03814.pdf) on the dataset of [this paper](https://arxiv.org/pdf/1906.07348.pdf). The model is a Bi-Encoder that scores a context with named entity (the string for the entity is marked) against 64 candidate entities (assumed to have already been provided through some candidate generation process, BM25 in this case). 
 
 # How to Run
-Install dependencies from `requirements.txt`, run `train.py` for training and `test.py` for testing. File paths and other model details can be found in `configs/config.ini`. See `nlp_entity_linking.ipynb` for example run on Google Colab, replace data paths with data from [here](https://github.com/lajanugen/zeshel)
+Install dependencies from `requirements.txt`, run `train.py` for training and `test.py` for testing. File paths and other model details can be found in `configs/config.ini`. See `nlp_entity_linking.ipynb` for example run on Google Colab, replace data paths with data from [here](https://github.com/lajanugen/zeshel) or from [here](https://drive.google.com/drive/folders/1xJyXPHG49TAj-IsEtelf-g9D2h_XUcxQ?usp=sharing), which also includes the chekpoint.
 
 Training note: On Colab's T4, 1 epoch takes ~2h50m
 
