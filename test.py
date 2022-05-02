@@ -17,7 +17,7 @@ def run_test():
     config = configparser.ConfigParser()
     config.read(os.path.join('configs', 'config.ini'))
     
-    data_path = 'data\\raw\zeshel\mentions\\val.json'
+    data_path = 'data\\raw\zeshel\mentions\\test.json'
     ckpt_path = config['data_path']['ckpt_path']
     
     accelerator = Accelerator(mixed_precision='no')
