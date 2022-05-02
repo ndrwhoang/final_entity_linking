@@ -21,7 +21,7 @@ def run_test():
     ckpt_path = config['data_path']['ckpt_path']
     
     accelerator = Accelerator(mixed_precision='no')
-    dataset = ELDataset(config, data_path)
+    dataset = ELDataset(config, data_path, 'test')
     model = Reranker(config)
     
     logger.setLevel(logging.INFO if accelerator.is_local_main_process else logging.ERROR) 

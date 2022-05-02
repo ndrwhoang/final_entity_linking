@@ -133,12 +133,12 @@ if __name__ == '__main__':
     document_path = 'data\\raw\zeshel\documents'
     sample_path = 'data\\raw\zeshel\mentions\\val.json'
     # candidate_path = 'data\\raw\\tfidf_candidates'
-    documents = _read_knowledge(document_path)
-    samples, candidates = _read_data(sample_path)
+    # documents = _read_knowledge(document_path)
+    # samples, candidates = _read_data(sample_path)
     
-    print(len(documents))
-    print(len(samples))
-    print(len(candidates))
+    # print(len(documents))
+    # print(len(samples))
+    # print(len(candidates))
     
     
     

@@ -82,7 +82,7 @@ class ELDataset(Dataset):
                 while len(candidate_ids) < 1 + int(self.config['data']['n_hard_negs']):
                     candidate_ids.append(padding)
             elif self.mode == 'test':
-                candidate_ids = candidate_ids[:65]
+                candidate_ids = candidate_ids[:4]
             else:
                 logger.error(f" mode has to be 'train' or 'test', currently {self.mode}")
                 raise ValueError

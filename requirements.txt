@@ -1,0 +1,8 @@
+accelerate==0.6.2
+bert==2.2.0
+modeling==0.0.1.dev0
+numpy==1.22.1
+tensorflow==2.8.0
+torch==1.10.1+cu102
+tqdm==4.62.3
+transformers==4.15.0
